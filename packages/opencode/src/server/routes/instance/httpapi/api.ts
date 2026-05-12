@@ -20,6 +20,8 @@ import { SyncApi } from "./groups/sync"
 import { TuiApi } from "./groups/tui"
 import { WorkspaceApi } from "./groups/workspace"
 import { V2Api } from "./groups/v2"
+import { AndroidDeviceApi } from "./groups/android-device"
+import { TaskAssignmentApi } from "./groups/task-assignment"
 import { Authorization } from "./middleware/authorization"
 import { SchemaErrorMiddleware } from "./middleware/schema-error"
 
@@ -49,6 +51,8 @@ export const InstanceHttpApi = HttpApi.make("opencode-instance")
   .addHttpApi(V2Api)
   .addHttpApi(TuiApi)
   .addHttpApi(WorkspaceApi)
+  .addHttpApi(AndroidDeviceApi)
+  .addHttpApi(TaskAssignmentApi)
   .middleware(SchemaErrorMiddleware)
 
 export const OpenCodeHttpApi = HttpApi.make("opencode")

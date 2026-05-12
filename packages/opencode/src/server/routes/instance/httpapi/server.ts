@@ -52,6 +52,8 @@ import { lazy } from "@/util/lazy"
 import { Vcs } from "@/project/vcs"
 import { Worktree } from "@/worktree"
 import { Workspace } from "@/control-plane/workspace"
+import { AndroidDevice } from "@/android-device/android-device"
+import { TaskAssignment } from "@/task-assignment/task-assignment"
 import { CorsConfig, isAllowedCorsOrigin, type CorsOptions } from "@/server/cors"
 import { serveUIEffect } from "@/server/shared/ui"
 import { ServerAuth } from "@/server/auth"
@@ -76,6 +78,8 @@ import { syncHandlers } from "./handlers/sync"
 import { tuiHandlers } from "./handlers/tui"
 import { v2Handlers } from "./handlers/v2"
 import { workspaceHandlers } from "./handlers/workspace"
+import { androidDeviceHandlers } from "./handlers/android-device"
+import { taskAssignmentHandlers } from "./handlers/task-assignment"
 import { instanceContextLayer, instanceRouterMiddleware } from "./middleware/instance-context"
 import { workspaceRouterMiddleware, workspaceRoutingLayer } from "./middleware/workspace-routing"
 import { disposeMiddleware } from "./lifecycle"
@@ -143,6 +147,8 @@ const instanceApiRoutes = HttpApiBuilder.layer(InstanceHttpApi).pipe(
     v2Handlers,
     tuiHandlers,
     workspaceHandlers,
+    androidDeviceHandlers,
+    taskAssignmentHandlers,
   ]),
 )
 
@@ -226,6 +232,8 @@ export function createRoutes(corsOptions?: CorsOptions) {
       AppFileSystem.defaultLayer,
       FetchHttpClient.layer,
       HttpServer.layerServices,
+      AndroidDevice.defaultLayer,
+      TaskAssignment.defaultLayer,
     ]),
     Layer.provideMerge(Layer.succeed(CorsConfig)(corsOptions)),
     Layer.provideMerge(InstanceLayer.layer),
