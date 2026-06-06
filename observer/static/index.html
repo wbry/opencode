@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCode Observer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- 顶部导航 -->
+    <header class="header">
+      <div class="header-left">
+        <h1 class="logo">OpenCode Observer</h1>
+      </div>
+      <div class="header-center">
+        <span id="connection-status" class="status-badge disconnected">Disconnected</span>
+      </div>
+      <div class="header-right">
+        <label class="auth-label">
+          Directory:
+          <input type="text" id="directory-input" placeholder="/path/to/project" size="20">
+        </label>
+        <label class="auth-label">
+          Password:
+          <input type="password" id="auth-password" placeholder="server password" size="15">
+        </label>
+        <button id="btn-connect" class="btn btn-primary">Connect</button>
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <div class="main">
+      <!-- 左侧 Session 列表 -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>Sessions</h2>
+          <button id="btn-refresh" class="btn btn-sm" title="Refresh">&#x21bb;</button>
+        </div>
+        <div class="sidebar-search">
+          <input type="text" id="search-input" placeholder="Search sessions..." class="search-input">
+        </div>
+        <div id="session-list" class="session-list">
+          <div class="empty-state">Click "Connect" to start monitoring</div>
+        </div>
+      </aside>
+
+      <!-- 右侧 Session 详情 -->
+      <main class="content" id="content">
+        <div id="no-session" class="empty-state large">
+          <p>Select a session to view details</p>
+        </div>
+        <div id="session-view" class="session-view" style="display:none">
+          <!-- Session 信息头 -->
+          <div class="session-header" id="session-header">
+            <div class="session-title" id="session-title"></div>
+            <div class="session-meta">
+              <span class="meta-item" id="session-agent"></span>
+              <span class="meta-item" id="session-model"></span>
+              <span class="meta-item" id="session-status"></span>
+              <span class="meta-item" id="session-cost"></span>
+            </div>
+          </div>
+          <!-- 消息流 -->
+          <div class="messages" id="messages"></div>
+          <!-- 实时状态栏 -->
+          <div class="live-bar" id="live-bar" style="display:none">
+            <span class="live-indicator"></span>
+            <span id="live-text">Streaming...</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import { Config as EffectConfig, Context, Effect, Layer } from "effect"
+import { resolve, join, extname } from "node:path"
 import { HttpApiBuilder, OpenApi } from "effect/unstable/httpapi"
 import {
   FetchHttpClient,
@@ -175,6 +176,48 @@ const docRoute = HttpRouter.use((router) => router.add("GET", "/doc", () => Effe
   Layer.provide(authOnlyRouterLayer),
 )
 
+// Observer Web UI - serves static files from the observer package
+
+const OBSERVER_MIME_TYPES: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+}
+
+// Observer 静态文件目录 - 相对于 opencode 包的 observer 目录
+const OBSERVER_STATIC_DIR = resolve(import.meta.dirname, "..", "..", "..", "..", "..", "observer", "static")
+
+const observerRoute = HttpRouter.use((router) =>
+  Effect.gen(function* () {
+    const fs = yield* FSUtil.Service
+    yield* router.add("GET", "/observer", (request) =>
+      Effect.gen(function* () {
+        const indexPath = join(OBSERVER_STATIC_DIR, "index.html")
+        const body = yield* fs.readFile(indexPath).pipe(Effect.catchReason("PlatformError", "NotFound", () => Effect.succeed(null)))
+        if (!body) return HttpServerResponse.jsonUnsafe({ error: "Observer UI not found" }, { status: 404 })
+        return HttpServerResponse.raw(body, { headers: { "content-type": "text/html; charset=utf-8" } })
+      }),
+    )
+    yield* router.add("GET", "/observer/:file", (request) =>
+      Effect.gen(function* () {
+        const fileName = request.params.file as string
+        // Security: prevent path traversal
+        const safeName = fileName.replace(/\.\./g, "").replace(/\//g, "")
+        const ext = extname(safeName)
+        const contentType = OBSERVER_MIME_TYPES[ext] || "application/octet-stream"
+        const filePath = join(OBSERVER_STATIC_DIR, safeName)
+        const body = yield* fs.readFile(filePath).pipe(Effect.catchReason("PlatformError", "NotFound", () => Effect.succeed(null)))
+        if (!body) return HttpServerResponse.jsonUnsafe({ error: "Not Found" }, { status: 404 })
+        return HttpServerResponse.raw(body, { headers: { "content-type": contentType } })
+      }),
+    )
+  }),
+).pipe(Layer.provide(authOnlyRouterLayer))
+
 const uiRoute = HttpRouter.use((router) =>
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
@@ -203,6 +246,7 @@ export function createRoutes(
     instanceRoutes,
     v2Routes,
     docRoute,
+    observerRoute,
     uiRoute,
   ).pipe(
     Layer.provide([
