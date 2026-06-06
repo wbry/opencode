@@ -44,18 +44,44 @@ Starts the server with `node dist/server/index.js`. The frontend is served as st
 
 All configuration is via environment variables:
 
+### Observer Service
+
 | Variable | Default | Description |
 |---|---|---|
-| `OBSERVER_PORT` | `3210` | Observer HTTP/WS port |
-| `OPENCODE_URL` | `http://localhost:4096` | opencode serve URL |
-| `OPENCODE_DIRECTORY` | — | `x-opencode-directory` header value |
-| `OPENCODE_PASSWORD` | — | Authorization password |
+| `OBSERVER_PORT` | `3210` | Observer HTTP/WS listen port |
 | `HEARTBEAT_INTERVAL` | `30000` | WebSocket heartbeat interval (ms) |
 
-Example:
+### OpenCode Serve Connection
+
+| Variable | Default | Description |
+|---|---|---|
+| `OPENCODE_URL` | `http://localhost:4096` | opencode serve address |
+| `OPENCODE_DIRECTORY` | — | Project directory, sent as `x-opencode-directory` header to opencode serve |
+| `OPENCODE_PASSWORD` | — | Password for opencode serve authentication. Must match the `OPENCODE_SERVER_PASSWORD` set on the opencode serve side. Sent as `Authorization: Bearer <password>` header |
+
+### Vite Dev Server
+
+| Variable | Default | Description |
+|---|---|---|
+| — | `5173` | Frontend dev server port (configured in `vite.config.ts`) |
+
+> **Note:** The Observer server currently listens on `localhost` only. To allow external access, modify the `server.listen()` call in `src/server/index.ts` to use `"0.0.0.0"`.
+
+### Example
 
 ```bash
-OPENCODE_URL=http://localhost:4096 OPENCODE_DIRECTORY=/path/to/project npm run dev
+# Basic usage
+npm run dev
+
+# With opencode serve on a custom address and password
+OPENCODE_URL=http://192.168.1.100:4096 \
+OPENCODE_PASSWORD=my_secret_password \
+npm run dev
+
+# With project directory and custom port
+OBSERVER_PORT=8080 \
+OPENCODE_DIRECTORY=/path/to/project \
+npm run dev
 ```
 
 ## Architecture
